@@ -159,6 +159,59 @@ class PositionSearchProblem(search.SearchProblem):
 
         return isGoal
 
+    def getCrossRoadSuccessors(self, state):
+        """
+        Returns successor states, the actions they require, and a cost of 1.
+
+         As noted in search.py:
+             For a given state, this should return a list of triples,
+         (successor, action, stepCost), where 'successor' is a
+         successor to the current state, 'action' is the action
+         required to get there, and 'stepCost' is the incremental
+         cost of expanding to that successor
+        """
+        nodes = util.Queue()
+        nodes.push( ( state, [], 0 ) )
+        successors = util.Stack()
+        crossroads = []
+
+        while not nodes.isEmpty():
+            currentPosition, currentDirections, currentCost = nodes.pop()
+
+            if self.isGoalState( currentPosition ) and ( not ( currentPosition == state ) ):
+                crossroads.append( ( currentPosition, currentDirections, currentCost ) )
+                self._visitedlist.remove( currentPosition )
+            else:
+                # Bookkeeping for display purposes
+                self._expanded += 1
+                if currentPosition not in self._visited:
+                    self._visited[ currentPosition ] = True
+                    self._visitedlist.append( currentPosition )
+
+                for action in [ Directions.NORTH, Directions.SOUTH,
+                               Directions.EAST, Directions.WEST ]:
+                    x, y = currentPosition
+                    dx, dy = Actions.directionToVector( action )
+                    nextX, nextY = int( x + dx ), int( y + dy )
+                    if not self.walls[ nextX ][ nextY ]:
+                        nextState = ( nextX, nextY )
+                        if nextState not in self._visited:
+                            successors.push( ( nextState, currentDirections + [ action ], currentCost + self.costFn( nextState ) ) )
+
+                numberOfSuccessors = len( successors.list )
+                if ( numberOfSuccessors <= 1 ) or ( currentPosition == state ):
+                    [ nodes.push( successors.pop() ) for i in list( range ( 0, numberOfSuccessors ) ) ]
+                else:
+                    crossroads.append( ( currentPosition, currentDirections, currentCost ) )
+                    successors = util.Stack()
+
+                    # Bookkeeping for disply purposes
+                    self._expanded -= 1
+                    self._visited.pop( currentPosition )
+                    self._visitedlist.remove( currentPosition )
+
+        return crossroads
+
     def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.

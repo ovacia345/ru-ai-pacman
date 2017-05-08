@@ -14,6 +14,7 @@ by Pacman agents (in searchAgents.py).
 import util
 
 
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -83,20 +84,72 @@ def depthFirstSearch(problem):
     print( "Is the start a goal?", problem.isGoalState(problem.getStartState()) )
     print( "Start's successors:", problem.getSuccessors(problem.getStartState()) )
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
 
+    startPosition = problem.getStartState()
+    startState = [ ( startPosition, None, 0 ) ]
+
+    frontier = util.Stack()
+    frontier.push( startState )
+
+
+    while not frontier.isEmpty():
+        currentNode = frontier.pop()
+        currentPosition = currentNode[ len( currentNode ) - 1 ][ 0 ]
+
+        if problem.isGoalState( currentPosition ):
+            break
+
+        for successor in problem.getSuccessors( currentPosition ):
+            if successor[ 0 ] not in problem._visited:
+                frontier.push( currentNode + [ successor ] )
+
+    return [ x[ 1 ] for x in currentNode[ 1 : len( currentNode ) ] ]
 
 def breadthFirstSearch(problem):
     "Search the shallowest nodes in the search tree first. [p 81]"
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    startPosition = problem.getStartState()
+    startState = [ ( startPosition, None, 0 ) ]
+
+    frontier = util.Queue()
+    frontier.push( startState )
+
+    while not frontier.isEmpty():
+        currentNode = frontier.pop()
+        currentPosition = currentNode[ len( currentNode ) - 1 ][ 0 ]
+
+        if problem.isGoalState( currentPosition ):
+            break
+
+        for successor in problem.getSuccessors( currentPosition ):
+            if successor[ 0 ] not in problem._visited:
+                frontier.push( currentNode + [ successor ] )
+
+    return [ x[ 1 ] for x in currentNode[ 1 : len( currentNode ) ] ]
 
 
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    startPosition = problem.getStartState()
+    startState = [ ( startPosition, None, problem.costFn( startPosition ) ) ]
+
+    priorityFunction = lambda x: x[ len( x ) - 1 ][ 2 ]
+    frontier = util.PriorityQueueWithFunction( priorityFunction )
+    frontier.push( startState )
+
+    while not frontier.isEmpty():
+        currentNode = frontier.pop()
+        currentPosition = currentNode[ len( currentNode ) - 1 ][ 0 ]
+
+        if problem.isGoalState( currentPosition ):
+            break
+
+        for successor in problem.getSuccessors( currentPosition ):
+            if successor[ 0 ] not in problem._visited:
+                frontier.push( currentNode + [ successor ] )
+
+    return [ x[ 1 ] for x in currentNode[ 1 : len( currentNode ) ] ]
 
 
 def nullHeuristic(state, problem=None):
@@ -107,18 +160,61 @@ def nullHeuristic(state, problem=None):
     return 0
 
 
+def aStarCrossRoadSearch(problem, heuristic=nullHeuristic):
+    "Search the node that has the lowest combined cost and heuristic first."
+
+    startPosition = problem.getStartState()
+    startState = [ ( startPosition, None, 0 ) ]
+
+    priorityFunction = lambda node: heuristic( node[len( node ) - 1][ 0 ], problem ) + sum( [ x[ 2 ] for x in node ] )
+    frontier = util.PriorityQueueWithFunction( priorityFunction )
+    frontier.push( startState )
+
+    while not frontier.isEmpty():
+        currentNode = frontier.pop()
+        currentPosition = currentNode[ len( currentNode ) - 1 ][ 0 ]
+
+        if problem.isGoalState( currentPosition ):
+            break
+
+        for successor in problem.getCrossRoadSuccessors( currentPosition ):
+            frontier.push( currentNode + [ successor ] )
+
+    allCrossroadActions = [ x[ 1 ] for x in currentNode[ 1 : len( currentNode ) ] ]
+    return [ action for singleCrossroadActions in allCrossroadActions for action in singleCrossroadActions ]
+
+
 def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
 
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    startPosition = problem.getStartState()
+    startState = [ ( startPosition, None, 0 ) ]
+
+    priorityFunction = lambda node: heuristic( node[ len( node ) - 1][ 0 ], problem ) + sum( [ x[ 2 ] for x in node ] )
+    frontier = util.PriorityQueueWithFunction( priorityFunction )
+    frontier.push( startState )
+
+    while not frontier.isEmpty():
+        currentNode = frontier.pop()
+        currentPosition = currentNode[ len( currentNode ) - 1 ][ 0 ]
+
+        if problem.isGoalState( currentPosition ):
+            break
+
+        for successor in problem.getSuccessors( currentPosition ):
+            if successor[ 0 ] not in problem._visited:
+                frontier.push( currentNode + [ successor ] )
+
+    return [ x[ 1 ] for x in currentNode[ 1 : len( currentNode ) ] ]
+
 
     "Bonus assignment: Adjust the getSuccessors() method in CrossroadSearchAgent class"
     "in searchAgents.py and test with:"
-    "python run.py -l bigMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic,prob=CrossroadSearchProblem"
+    "python pacman.py -l bigMaze -z .5 -p CrossroadSearchAgent -a fn=astar,heuristic=manhattanHeuristic "
 
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch
+astarcross = aStarCrossRoadSearch
 astar = aStarSearch
 ucs = uniformCostSearch

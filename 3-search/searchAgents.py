@@ -246,7 +246,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         util.raiseNotDefined()
 
 
-class CrossroadSearchProblem(PositionSearchProblem):
+class CrossroadSearchAgent(SearchAgent):
 
     def getSuccessors(self, state):
         """
@@ -261,15 +261,22 @@ class CrossroadSearchProblem(PositionSearchProblem):
         """
 
         successors = []
-        for action in [Directions.NORTH, Directions.SOUTH,
-                       Directions.EAST, Directions.WEST]:
-            # Add a successor state to the successor list if the action is legal
-            # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
-            1
+
+        while True:
+            for action in [Directions.NORTH, Directions.SOUTH,
+                           Directions.EAST, Directions.WEST]:
+                x, y = state
+                dx, dy = Actions.directionToVector(action)
+                nextx, nexty = int(x + dx), int(y + dy)
+                if not self.walls[nextx][nexty]:
+                    nextState = (nextx, nexty)
+                    cost = self.costFn( nextState )
+                    successors.append((nextState, action, cost))
+
+            if len(successors) == 1:
+                state = successors.pop()
+            else:
+                break
 
         # Bookkeeping for display purposes
         self._expanded += 1

@@ -14,8 +14,13 @@ def shopSmart(orderList, fruitShops):
         orderList: List of (fruit, numPound) tuples
         fruitShops: List of FruitShops
     """
-    "*** YOUR CODE HERE ***"
-    return None
+    shop = fruitShops[ 0 ]
+
+    for Shop in fruitShops[ 1 : ]:
+        if shop.getPriceOfOrder( orderList ) > Shop.getPriceOfOrder( orderList ):
+            shop = Shop
+
+    return shop
 
 fruits1 = {'apples': 2.0, 'oranges':1.0}
 fruits2 = {'apples': 1.0, 'oranges': 5.0}

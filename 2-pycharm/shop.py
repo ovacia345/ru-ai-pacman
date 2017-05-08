@@ -10,7 +10,7 @@ class FruitShop:
         """
         self.fruitPrices = fruitPrices
         self.name = name
-        print('Welcome to %s fruit shop' % name)
+        print('Welcome to %s fruit shop'.format(name))
         
     def getCostPerPound(self, fruit):
         """
@@ -29,7 +29,14 @@ class FruitShop:
         not in the shop, the function returns None.
         """ 
         
-        " Insert your code for Problem 1 (buyLotsOfFruit.py). "
+        counter = 0.0
+        for fruit in orderList:
+            if fruit[ 0 ] in self.fruitPrices.keys():
+                counter = counter + fruit[ 1 ] * self.fruitPrices[ fruit[ 0 ] ]
+            else:
+                return None
+
+        return counter
         " Change fruitPrices to self.fruitPrices. "
     
     def getName(self):
